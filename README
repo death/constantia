@@ -1,0 +1,10 @@
+Constantia is a general-purpose utilities library for Common Lisp.
+
+Its purpose is to serve as a single place for all the sufficiently
+general, useful, and small utilities I use in my everyday projects.
+
+It is not expressly intended for public consumption, but you are
+welcome to use it, should you choose to.  Relevant criticism will be
+appreciated as well.
+
+Yes, the naming was inspired by the famous Alexandria library.
