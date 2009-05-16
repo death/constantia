@@ -134,7 +134,7 @@ thread-safe."
   (:documentation
    "Listens for all events and writes to a stream when given one."))
 
-(defmethod on-event (ev (listener tracing-listener))
+(defmethod on-event ((ev event) (listener tracing-listener))
   (format (tracing-listener-output listener) "~&E: ~S~%" (type-of ev))
   (when (tracing-listener-describe-p listener)
     (describe ev (tracing-listener-output listener))))
