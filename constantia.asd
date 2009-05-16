@@ -7,7 +7,8 @@
 ;;; -*- Mode: LISP; Syntax: COMMON-LISP; Package: CL-USER; Base: 10 -*-
 
 (asdf:defsystem #:constantia
-  :depends-on ()
+  :depends-on (#:alexandria #:bordeaux-threads #:closer-mop)
   :components
   ((:file "packages")
-   (:file "misc")))
+   (:file "misc" :depends-on ("packages"))
+   (:file "event" :depends-on ("packages" "misc"))))
