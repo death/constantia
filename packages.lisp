@@ -77,4 +77,6 @@
    #:*delimited-message-delimiter*
    #:message-too-big
    #:message-too-big-scanner
-   #:delimited-message-scanner))
+   #:delimited-message-scanner
+   #:store-max-length
+   #:ignore-message))
