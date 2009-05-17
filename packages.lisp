@@ -62,4 +62,19 @@
    #:tracing-listener
    #:tracing-listener-output
    #:tracing-listener-describe-p
-   #:anonymous-listener))
+   #:anonymous-listener
+   ;; Scanners
+   #:scan-object-available
+   #:scan-object
+   #:scan-source
+   #:scanner
+   #:object-scanned
+   #:continue-scanning
+   #:reset-scanner
+   #:fixlen-message-scanner
+   #:varlen-message-scanner
+   #:*delimited-message-max-length*
+   #:*delimited-message-delimiter*
+   #:message-too-big
+   #:message-too-big-scanner
+   #:delimited-message-scanner))
