@@ -34,6 +34,8 @@
    #:make-kahan
    #:kahan-p
    #:copy-kahan
+   #:kahan-sum
+   #:kahan-c
    #:k+
    #:float-sum
    #:moment
