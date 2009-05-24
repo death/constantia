@@ -64,7 +64,6 @@
    #:tracing-listener
    #:tracing-listener-output
    #:tracing-listener-describe-p
-   #:anonymous-listener
    ;; Scanners
    #:scan-object-available
    #:scan-object

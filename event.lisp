@@ -53,6 +53,9 @@ DEFINE-EVENT can be applied to."
 generic function in order to do something useful with the events they
 receive \(events are sent by speaker objects using FIRE)."))
 
+(defmethod on-event ((event event) (listener function))
+  (funcall listener event))
+
 (defmethod documentation ((x symbol) (doc-type (eql 'event)))
   (documentation (find-class x) 't))
 
@@ -139,43 +142,3 @@ thread-safe."
   (when (tracing-listener-describe-p listener)
     (describe ev (tracing-listener-output listener))))
 
-
-;;;; Anonymous listener
-
-(defclass anonymous-listener ()
-  ((dispatch-table :initform (make-hash-table :test #'eq)))
-  (:documentation
-   "Represents an anonymous listener.
-
-Sometimes it is more convenient to specify a listener in-line rather
-than define a class and ON-EVENT methods.  When that is the case, use
-the lambda of listeners: an anonymous listener."))
-
-(defun make-anonymous-listener (event-classes callbacks)
-  (let ((listener (make-instance 'anonymous-listener)))
-    (with-slots (dispatch-table) listener
-      (loop for event-class in event-classes
-            for callback in callbacks
-            do (setf (gethash (find-class event-class) dispatch-table) callback)))
-    listener))
-
-(defmethod on-event ((ev event) (listener anonymous-listener))
-  (let* ((dispatch-table (slot-value listener 'dispatch-table))
-         (classes (closer-mop:class-precedence-list (class-of ev)))
-         (callback (some (lambda (class) (gethash class dispatch-table)) classes)))
-    (when callback
-      (funcall callback ev))))
-
-(defmacro anonymous-listener (&body clauses)
-  "Syntactic sugar for MAKE-ANONYMOUS-LISTENER.
-
-clause::= ((event-var event-class) . {form}*)
-event-var::= variable name
-event-class::= event class name"
-  (loop for ((var event-class) . forms) in clauses
-        collect event-class into event-classes
-        collect `(lambda (,var)
-                   (declare (ignorable ,var))
-                   ,@forms)
-        into callbacks
-        finally (return `(make-anonymous-listener ',event-classes (list ,@callbacks)))))
