@@ -61,9 +61,7 @@
    #:remove-listener
    #:clear-listeners
    #:fire
-   #:tracing-listener
-   #:tracing-listener-output
-   #:tracing-listener-describe-p
+   #:make-tracing-listener
    ;; Scanners
    #:scan-object-available
    #:scan-object

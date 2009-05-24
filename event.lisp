@@ -130,15 +130,10 @@ thread-safe."
 
 ;;;; Tracing listener
 
-(defclass tracing-listener ()
-  ((output :initarg :output :reader tracing-listener-output)
-   (describe :initarg :describe :reader tracing-listener-describe-p))
-  (:default-initargs :output *standard-output* :describe nil)
-  (:documentation
-   "Listens for all events and writes to a stream when given one."))
-
-(defmethod on-event ((ev event) (listener tracing-listener))
-  (format (tracing-listener-output listener) "~&E: ~S~%" (type-of ev))
-  (when (tracing-listener-describe-p listener)
-    (describe ev (tracing-listener-output listener))))
-
+(defun make-tracing-listener (&key output (describe nil))
+  "Return a listener that dumps information about any event received."
+  (default output *standard-output*)
+  (lambda (event)
+    (format output "~&E: ~S~%" (type-of event))
+    (when describe
+      (describe event output))))
