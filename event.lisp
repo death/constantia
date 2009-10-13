@@ -19,8 +19,7 @@ subclassing purposes.
 Events are fired using FIRE by speaker objects, and are received by
 listeners.
 
-In order to do something useful with the events, the listeners have to
-add their own specialized methods to ON-EVENT."))
+Listeners are functions taking one parameter, the event."))
 
 (defmacro define-event (name &rest slot-names)
   "Define a new event class.  The first element of SLOT-NAMES may
@@ -44,17 +43,6 @@ DEFINE-EVENT can be applied to."
   `(progn
      ,@(loop for event-spec in event-specs
              collect `(define-event ,@event-spec))))
-
-(defgeneric on-event (event listener)
-  (:method (event listener)
-    (declare (ignore event listener)))
-  (:documentation
-   "Called when an event is fired.  Listeners can add methods to this
-generic function in order to do something useful with the events they
-receive \(events are sent by speaker objects using FIRE)."))
-
-(defmethod on-event ((event event) (listener function))
-  (funcall listener event))
 
 (defmethod documentation ((x symbol) (doc-type (eql 'event)))
   (documentation (find-class x) 't))
@@ -115,7 +103,7 @@ thread-safe."
   (unless (typep datum 'event)
     (setf datum (apply #'make-instance datum arguments)))
   (dolist (listener (listeners-list speaker))
-    (on-event datum listener))
+    (funcall listener datum))
   (values))
 
 (define-compiler-macro fire (&whole form speaker datum &rest arguments &environment env)

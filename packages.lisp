@@ -56,7 +56,6 @@
    #:speaker
    #:define-event
    #:define-events
-   #:on-event
    #:add-listener
    #:remove-listener
    #:clear-listeners

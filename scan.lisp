@@ -93,8 +93,9 @@ shouldn't attempt to keep or modify them."))
 
 (defmethod initialize-instance :after ((scanner varlen-message-scanner) &rest initargs)
   (declare (ignore initargs))
-  (add-listener scanner (scan-size-scanner scanner))
-  (setf (scan-active-scanner scanner) (scan-size-scanner scanner)))
+  (let ((size-scanner (scan-size-scanner scanner)))
+    (add-listener (lambda (ev) (varlen-scanned-size ev scanner)) size-scanner)
+    (setf (scan-active-scanner scanner) size-scanner)))
 
 (defmethod continue-scanning (buffer start end (scanner varlen-message-scanner))
   (with-accessors ((active scan-active-scanner) (ms scan-message-scanner)
@@ -106,17 +107,17 @@ shouldn't attempt to keep or modify them."))
           end
           (continue-scanning buffer offset end ms)))))
 
-(defmethod on-event ((ev scan-object-available) (scanner varlen-message-scanner))
-  (with-accessors ((active scan-active-scanner) (ms scan-message-scanner)
-                   (ss scan-size-scanner)) scanner
-    (cond ((eq (scan-source ev) ss)
-           (setf ms (make-instance 'fixlen-message-scanner
-                                   :length (octets-to-u32 (scan-object ev))))
-           (setf active ms)
-           (add-listener scanner ms))
-          ((and ms (eq (scan-source ev) ms))
-           (object-scanned (scan-object ev) scanner))
-          (t (warn "Unexpected event for scanner ~S: ~S." scanner ev)))))
+(defun varlen-scanned-size (ev scanner)
+  (when (typep ev 'scan-object-available)
+    (with-accessors ((active scan-active-scanner)
+                     (ms scan-message-scanner)) scanner
+      (setf ms (make-instance 'fixlen-message-scanner
+                              :length (octets-to-u32 (scan-object ev))))
+      (setf active ms)
+      (add-listener (lambda (ev)
+                      (when (typep ev 'scan-object-available)
+                        (object-scanned (scan-object ev) scanner)))
+                    ms))))
 
 (defun octets-to-u32 (vector)
   (let ((u32 0))
@@ -131,9 +132,7 @@ shouldn't attempt to keep or modify them."))
                    (ss scan-size-scanner)) scanner
     (reset-scanner ss)
     (setf active ss)
-    (when ms
-      (remove-listener scanner ms)
-      (setf ms nil))))
+    (setf ms nil)))
 
 
 ;;;; Delimited message scanner
