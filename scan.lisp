@@ -204,3 +204,11 @@ and receivers shouldn't attempt to keep or modify them."))
 (defun prompt-max-length ()
   (format *query-io* "~&Enter new max length: ")
   (list (read *query-io*)))
+
+(defun store-max-length (value &optional condition)
+  (when (find-restart 'store-max-length condition)
+    (invoke-restart 'store-max-length value)))
+
+(defun ignore-message (&optional condition)
+  (when (find-restart 'ignore-message condition)
+    (invoke-restart 'ignore-message)))
