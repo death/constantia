@@ -21,29 +21,45 @@ listeners.
 
 Listeners are functions taking one parameter, the event."))
 
-(defmacro define-event (name &rest slot-names)
+(defmacro define-event (name-and-options &rest slot-names)
   "Define a new event class.  The first element of SLOT-NAMES may
 actually be a docstring for the class, in which case the slot names
-are the rest of the list."
-  (flet ((initarg (slot-name) (as-keyword slot-name))
-         (accessor (slot-name) slot-name))
-    (let ((doc-string (when (stringp (first slot-names))
-                        (pop slot-names))))
-      `(defclass ,name (event)
-         ,(loop for slot-name in slot-names
-                collect `(,slot-name
-                          :initarg ,(initarg slot-name)
-                          :reader ,(accessor slot-name)))
-         ,@(when doc-string `((:documentation ,doc-string)))))))
+are the rest of the list.
+
+Syntax: define-event name-and-options [documentation] {slot-name}*
+
+name-and-options::= event-name | (event-name [[options]])
+
+options::= (:super {superclass-name}*)"
+  (destructuring-bind (name &rest options) (ensure-list name-and-options)
+    (with-options (&optional super) options
+      (when (null super) (setf super '(event)))
+      (flet ((initarg (slot-name) (as-keyword slot-name))
+             (accessor (slot-name) slot-name))
+        (let ((doc-string (when (stringp (first slot-names))
+                            (pop slot-names))))
+          `(defclass ,name ,super
+             ,(loop for slot-name in slot-names
+                    collect `(,slot-name
+                              :initarg ,(initarg slot-name)
+                              :reader ,(accessor slot-name)))
+             ,@(when doc-string `((:documentation ,doc-string)))))))))
 
 (defmacro define-events (&body event-specs)
   "Define a number of event classes.  An event class specification is
 a list of the form \(name . slot-names)}, i.e. a list that
-DEFINE-EVENT can be applied to."
-  `(progn
-     ,@(loop for event-spec in event-specs
-             collect `(define-event ,@event-spec))))
-
+DEFINE-EVENT can be applied to.  The first argument may be a list of
+options to append to each event's options."
+  (let ((options (when (or (null (car event-specs))
+                           (and (consp (car event-specs))
+                                (consp (caar event-specs))))
+                   (pop event-specs))))
+    `(progn
+       ,@(loop for event-spec in event-specs
+               for name-and-options = (append (ensure-list (first event-spec)) options)
+               for slot-names = (rest event-spec)
+               collect `(define-event ,name-and-options ,@slot-names)))))
+  
 (defmethod documentation ((x symbol) (doc-type (eql 'event)))
   (documentation (find-class x) 't))
 
