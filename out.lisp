@@ -244,7 +244,7 @@
 
 (defmacro define-out-user-op (name (&rest args) &body body)
   `(progn
-     (setf (gethash ',name *user-ops*)
+     (setf (gethash ',name *out-user-ops*)
            (lambda ,args
              (declare (ignorable ,(car args)))
              ,@body))
