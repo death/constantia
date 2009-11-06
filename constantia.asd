@@ -12,4 +12,5 @@
   ((:file "packages")
    (:file "misc" :depends-on ("packages"))
    (:file "event" :depends-on ("packages" "misc"))
-   (:file "scan" :depends-on ("packages" "misc" "event"))))
+   (:file "scan" :depends-on ("packages" "misc" "event"))
+   (:file "out" :depends-on ("packages"))))

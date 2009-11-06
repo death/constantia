@@ -77,4 +77,8 @@
    #:message-too-big-scanner
    #:delimited-message-scanner
    #:store-max-length
-   #:ignore-message))
+   #:ignore-message
+   ;; OUT macro
+   #:out
+   #:outs
+   #:define-out-user-op))
