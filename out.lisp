@@ -279,7 +279,8 @@
                            (out (:to ,stream) ,@subforms))))))
   (define-case-op :dc :downcase)
   (define-case-op :uc :upcase)
-  (define-case-op :cc :capitalize))
+  (define-case-op :cc :capitalize)
+  (define-case-op :pc :preserve))
 
 ;; This construct resembles the one in McDermott's OUT, except that we
 ;; use a local macro OUT to "return" to OUT mode.
