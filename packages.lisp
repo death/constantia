@@ -7,7 +7,7 @@
 (in-package #:cl-user)
 
 (defpackage #:constantia
-  (:use #:cl #:alexandria)
+  (:use #:cl #:alexandria #:trivial-gray-streams)
   (:documentation
    "Contains and exports all public symbols of Constantia.")
   (:export
@@ -78,6 +78,14 @@
    #:delimited-message-scanner
    #:store-max-length
    #:ignore-message
+   ;; Forwarding character output stream
+   #:forwarding-character-output-stream
+   #:forwarding-character-output-stream-stream
+   ;; Case-translating stream
+   #:case-translating-stream
+   #:make-case-translating-stream
+   #:ensure-case-translating-stream
+   #:with-stream-case
    ;; OUT macro
    #:out
    #:outs

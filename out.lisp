@@ -29,6 +29,8 @@
         (setf to-string t))
       (pop args))
 
+    (setf stream-form `(ensure-case-translating-stream ,stream-form))
+
     (labels ((add-to-format (format-string &optional bindings args)
                (write-string format-string format-string-stream)
                (appendf format-bindings bindings)
@@ -67,7 +69,7 @@
       
       (add-to-forms
        (if to-string
-           `((get-output-stream-string ,stream))
+           `((get-output-stream-string (forwarding-character-output-stream-stream ,stream)))
            `((values)))))
     
     `(let ((,stream ,stream-form))
@@ -264,26 +266,20 @@
       ,@(loop for (test . consequent) in clauses
               collect `(,test (out (:to ,stream) ,@consequent))))))
 
-;;; I considered adding a new type of return value, :FORMAT-NESTING,
-;;; and use the format directives ~( and ~), but this doesn't work
-;;; well if the nested subforms break out of the format (i.e. return
-;;; forms to be added).  Instead we incur the penalty of writing
-;;; everything to a string, downcasing, and writing to the stream.  I
-;;; suppose we could be smarter about it and have our own write
-;;; operations that handle casing.
-
 ;;; Note that we still don't support the behavior of ~@(, which
 ;;; "capitalizes just the first word and forces the rest to lower
 ;;; case."
 
-(define-out-op :dc (stream &rest subforms)
-  `(:forms (out (:to ,stream) (nstring-downcase (outs ,@subforms)))))
+;;; Unlike FORMAT, we provide proper nesting semantics for case
+;;; translation (the "outer conversion" does not dominate).
 
-(define-out-op :uc (stream &rest subforms)
-  `(:forms (out (:to ,stream) (nstring-upcase (outs ,@subforms)))))
-
-(define-out-op :cc (stream &rest subforms)
-  `(:forms (out (:to ,stream) (nstring-capitalize (outs ,@subforms)))))
+(macrolet ((define-case-op (name case)
+             `(define-out-op ,name (stream &rest subforms)
+                `(:forms (with-stream-case (,stream ,',case)
+                           (out (:to ,stream) ,@subforms))))))
+  (define-case-op :dc :downcase)
+  (define-case-op :uc :upcase)
+  (define-case-op :cc :capitalize))
 
 ;; This construct resembles the one in McDermott's OUT, except that we
 ;; use a local macro OUT to "return" to OUT mode.
