@@ -43,7 +43,6 @@
              (finish-format ()
                (let ((format-string (get-output-stream-string format-string-stream)))
                  (unless (emptyp format-string)
-                   (setf format-string-stream (make-string-output-stream))
                    (add-to-forms
                     `((let ,format-bindings
                         (format ,stream ,format-string ,@format-args))))
