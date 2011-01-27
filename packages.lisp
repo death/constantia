@@ -51,6 +51,7 @@
    #:queue-pop
    #:queue-empty-p
    #:queue-size
+   #:queue-clear
    ;; Event system
    #:event
    #:speaker

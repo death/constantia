@@ -307,3 +307,8 @@ queue."
 (defun queue-size (q)
   "Return the number of objects in Q."
   (length (queue-head q)))
+
+(defun queue-clear (q)
+  "Clear contents of Q."
+  (setf (queue-head q) nil)
+  (setf (queue-tail q) nil))
