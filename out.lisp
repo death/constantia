@@ -288,6 +288,9 @@
                         (out (:to ,stream) ,@subforms))
                       ,hash-table))))
 
+(define-out-op :n (stream n &rest subforms)
+  `(:forms (loop repeat ,n do (out (:to ,stream) ,@subforms))))
+
 ;; This construct resembles the one in McDermott's OUT, except that we
 ;; use a local macro OUT to "return" to OUT mode.
 
