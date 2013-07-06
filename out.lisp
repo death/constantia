@@ -65,12 +65,12 @@
                    (:forms (add-to-forms data)))))
               (otherwise
                (simple-output arg))))
-      
+
       (add-to-forms
        (if to-string
            `((get-output-stream-string (forwarding-character-output-stream-stream ,stream)))
            `((values)))))
-    
+
     `(let ((,stream ,stream-form))
        (declare (ignorable ,stream))
        ,@forms)))
