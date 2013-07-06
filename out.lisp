@@ -281,11 +281,12 @@
   (define-case-op :cc :capitalize)
   (define-case-op :pc :preserve))
 
-(define-out-op :h (stream hash-table k v &rest subforms)
-  `(:forms (maphash (lambda (,k ,v)
-                      (declare (ignorable ,k ,v))
-                      (out (:to ,stream) ,@subforms))
-                    ,hash-table)))
+(define-out-op :h (stream hash-table k/v &rest subforms)
+  (destructuring-bind (k v) k/v
+    `(:forms (maphash (lambda (,k ,v)
+                        (declare (ignorable ,k ,v))
+                        (out (:to ,stream) ,@subforms))
+                      ,hash-table))))
 
 ;; This construct resembles the one in McDermott's OUT, except that we
 ;; use a local macro OUT to "return" to OUT mode.
