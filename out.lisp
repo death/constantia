@@ -9,7 +9,7 @@
 
 ;;; This macro was inspired by Drew McDermott's YTools OUT.
 
-(defmacro out (&rest args)
+(defmacro out (&rest args &environment env)
 
   (when (endp args)
     (return-from out `(values)))
@@ -22,12 +22,14 @@
         (forms '())
         (to-string nil))
 
-    (when (and (consp args) (consp (car args)) (eq (caar args) :to))
-      (setf stream-form (cadar args))
-      (when (eq stream-form :string)
-        (setf stream-form `(make-string-output-stream))
-        (setf to-string t))
-      (pop args))
+    (cond ((and (consp args) (consp (car args)) (eq (caar args) :to))
+           (setf stream-form (cadar args))
+           (when (eq stream-form :string)
+             (setf stream-form `(make-string-output-stream))
+             (setf to-string t))
+           (pop args))
+          ((macroexpand '(out-stream-passer) env)
+           (setf stream-form (macroexpand '(out-stream-passer) env))))
 
     (setf stream-form `(ensure-case-translating-stream ,stream-form))
 
@@ -294,10 +296,9 @@
 ;; This construct resembles the one in McDermott's OUT, except that we
 ;; use a local macro OUT to "return" to OUT mode.
 
-#+sbcl                                  ; contains sbcl-specific code..
+(defmacro out-stream-passer () 'nil)
+
 (define-out-op :e (stream &rest forms)
   `(:forms
-    (macrolet ((out (&rest args)
-                 ;; Is this the right thing to do?  Sure feels kludgy.
-                 (sb-cltl2:macroexpand-all `(out (:to ,',stream) ,@args))))
+    (macrolet ((out-stream-passer () ',stream))
       ,@forms)))

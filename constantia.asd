@@ -8,7 +8,7 @@
 
 (asdf:defsystem #:constantia
   :depends-on (#:alexandria #:bordeaux-threads #:flexi-streams
-               #+sbcl #:sb-cltl2 #:trivial-gray-streams)
+               #:trivial-gray-streams)
   :components
   ((:file "packages")
    (:file "misc" :depends-on ("packages"))
