@@ -225,7 +225,7 @@ expander."
     (format stream "~F (~F)" (moment-mean moment) (moment-sdev moment)))
   moment)
 
-(defun moment (data &key key start end)
+(defun moment (data &key key start end (sample t))
   (default start 0)
   (default end (length data))
   (default key #'identity)
@@ -249,7 +249,7 @@ expander."
           (k+ skew d3)
           (k+ curt d4)))
       (setf adev (/ (kahan-sum adev) n))
-      (setf svar (/ (kahan-sum svar) (- n 1)))
+      (setf svar (/ (kahan-sum svar) (if sample (- n 1) n)))
       (setf sdev (sqrt svar))
       (cond ((zerop svar)
              (setf skew nil)
