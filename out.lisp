@@ -20,7 +20,9 @@
         (format-bindings '())
         (format-args '())
         (forms '())
-        (to-string nil))
+        (to-string nil)
+        (case-translation nil))
+    (declare (special case-translation))
 
     (cond ((and (consp args) (consp (car args)) (eq (caar args) :to))
            (setf stream-form (cadar args))
@@ -30,8 +32,6 @@
            (pop args))
           ((macroexpand '(out-stream-passer) env)
            (setf stream-form (macroexpand '(out-stream-passer) env))))
-
-    (setf stream-form `(ensure-case-translating-stream ,stream-form))
 
     (labels ((add-to-format (format-string &optional bindings args)
                (write-string format-string format-string-stream)
@@ -72,6 +72,9 @@
        (if to-string
            `((get-output-stream-string (forwarding-character-output-stream-stream ,stream)))
            `((values)))))
+
+    (when case-translation
+      (setf stream-form `(ensure-case-translating-stream ,stream-form)))
 
     `(let ((,stream ,stream-form))
        (declare (ignorable ,stream))
@@ -276,6 +279,8 @@
 
 (macrolet ((define-case-op (name case)
              `(define-out-op ,name (stream &rest subforms)
+                (declare (special case-translation))
+                (setf case-translation t)
                 `(:forms (with-stream-case (,stream ,',case)
                            (out (:to ,stream) ,@subforms))))))
   (define-case-op :dc :downcase)
