@@ -28,6 +28,10 @@
    #:gethash/i
    #:doseq
    #:best-element
+   #:as-list
+   #:as-vector
+   #:make-octet-vector
+   #:plist-get
    #:agetf
    #:with-options
    #:kahan

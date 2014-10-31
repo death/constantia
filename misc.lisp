@@ -132,6 +132,25 @@ from some reference value)."
           (setf best-element x))))
     (values best-element best-score)))
 
+(defun as-list (sequence)
+  "Return a list representation of SEQUENCE."
+  (coerce sequence 'list))
+
+(defun as-vector (sequence)
+  "Return a vector representation of SEQUENCE."
+  (coerce sequence 'vector))
+
+(defun make-octet-vector (size &rest array-options)
+  "Return a fresh vector whose element type is (unsigned-byte 8)."
+  (apply #'make-array size :element-type 'u8 array-options))
+
+(defun plist-get (key plist)
+  "Return the value corresponding to KEY in the PLIST, or NIL if
+absent.  Keys are compared using EQUAL."
+  (cond ((null plist) nil)
+        ((equal (car plist) key) (cadr plist))
+        (t (plist-get key (cddr plist)))))
+
 
 ;;;; AGETF - GETF for association lists
 
