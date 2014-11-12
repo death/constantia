@@ -31,6 +31,7 @@
    #:as-list
    #:as-vector
    #:make-octet-vector
+   #:concat-octet-vectors
    #:plist-get
    #:agetf
    #:with-options

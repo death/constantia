@@ -144,6 +144,16 @@ from some reference value)."
   "Return a fresh vector whose element type is (unsigned-byte 8)."
   (apply #'make-array size :element-type 'u8 array-options))
 
+(defun concat-octet-vectors (&rest vectors)
+  "Return the concatenation of a bunch of octet vectors into one."
+  (let* ((total-length (reduce #'+ vectors :key #'length))
+         (result (make-octet-vector total-length))
+         (offset 0))
+    (dolist (vector vectors)
+      (replace result vector :start1 offset :end1 (+ offset (length vector)))
+      (incf offset (length vector)))
+    result))
+
 (defun plist-get (key plist)
   "Return the value corresponding to KEY in the PLIST, or NIL if
 absent.  Keys are compared using EQUAL."
