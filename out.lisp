@@ -70,7 +70,9 @@
 
       (add-to-forms
        (if to-string
-           `((get-output-stream-string (forwarding-character-output-stream-stream ,stream)))
+           (if case-translation
+               `((get-output-stream-string (forwarding-character-output-stream-stream ,stream)))
+               `((get-output-stream-string ,stream)))
            `((values)))))
 
     (when case-translation
