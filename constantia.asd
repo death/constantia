@@ -20,4 +20,5 @@
    (:file "out"
           :depends-on ("packages"
                        "case-translating-stream"
-                       "forwarding-character-output-stream"))))
+                       "forwarding-character-output-stream"))
+   (:file "parse-duration" :depends-on ("packages"))))

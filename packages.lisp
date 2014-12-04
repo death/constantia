@@ -95,4 +95,10 @@
    ;; OUT macro
    #:out
    #:outs
-   #:define-out-user-op))
+   #:define-out-user-op
+   ;; Parse-Duration
+   #:invalid-duration
+   #:invalid-duration-string
+   #:invalid-time-unit
+   #:invalid-time-unit-string
+   #:parse-duration))
