@@ -57,6 +57,8 @@
    #:queue-empty-p
    #:queue-size
    #:queue-clear
+   #:wrap-string
+   #:print-table
    ;; Event system
    #:event
    #:speaker

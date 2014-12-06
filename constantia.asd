@@ -21,4 +21,6 @@
           :depends-on ("packages"
                        "case-translating-stream"
                        "forwarding-character-output-stream"))
-   (:file "parse-duration" :depends-on ("packages"))))
+   (:file "parse-duration" :depends-on ("packages"))
+   (:file "wrap-string" :depends-on ("packages"))
+   (:file "print-table" :depends-on ("packages" "wrap-string"))))
