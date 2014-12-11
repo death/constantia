@@ -303,7 +303,7 @@
     (let ((first (gensym))
           (separator-value (gensym)))
       `(:forms (let ((,first t)
-                     (,separator-value ,(if separator `(outs ,separator) nil)))
+                     (,separator-value ,separator))
                  (maphash (lambda (,k ,v)
                             (declare (ignorable ,k ,v))
                             (cond (,first (setf ,first nil))
