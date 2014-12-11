@@ -218,8 +218,8 @@
   (format-op (if escape #\S #\A) args '(:width :column-increment :min-pad :pad-char)
              :colon as-list :at (eq align :right) :required x))
 
-(defun out-seq (stream sequence separator start end key)
-  (unless separator (setf separator #\Space))
+(defun out-seq (stream sequence prefix suffix separator start end key)
+  (unless separator (setf separator (if (or prefix suffix) "" #\Space)))
   (unless key (setf key #'identity))
   (etypecase sequence
     (list
@@ -228,18 +228,26 @@
            for x in (nthcdr (or start 0) sequence) do
            (unless first-time
              (out (:to stream) separator))
-           (out (:to stream) (funcall key x))))
+           (when prefix
+             (out (:to stream) prefix))
+           (out (:to stream) (funcall key x))
+           (when suffix
+             (out (:to stream) suffix))))
     (vector
      (loop for first-time = t then nil
            for index from (or start 0) below (or end (length sequence))
            for x = (aref sequence index) do
            (unless first-time
              (out (:to stream) separator))
-           (out (:to stream) (funcall key x))))))
+           (when prefix
+             (out (:to stream) prefix))
+           (out (:to stream) (funcall key x))
+           (when suffix
+             (out (:to stream) suffix))))))
 
-(define-out-op :s (stream sequence &key separator start end key)
+(define-out-op :s (stream sequence &key prefix suffix separator start end key)
   `(:forms
-    (out-seq ,stream ,sequence ,separator ,start ,end ,key)))
+    (out-seq ,stream ,sequence ,prefix ,suffix ,separator ,start ,end ,key)))
 
 ;;; This allows using non-keywords to identify operators, which allows
 ;;; the user to utilize the package system to prevent name clashes.
