@@ -299,11 +299,17 @@
   (define-case-op :pc :preserve))
 
 (define-out-op :h (stream hash-table k/v &rest subforms)
-  (destructuring-bind (k v) k/v
-    `(:forms (maphash (lambda (,k ,v)
-                        (declare (ignorable ,k ,v))
-                        (out (:to ,stream) ,@subforms))
-                      ,hash-table))))
+  (destructuring-bind (k v &key separator) k/v
+    (let ((first (gensym))
+          (separator-value (gensym)))
+      `(:forms (let ((,first t)
+                     (,separator-value ,(if separator `(outs ,separator) nil)))
+                 (maphash (lambda (,k ,v)
+                            (declare (ignorable ,k ,v))
+                            (cond (,first (setf ,first nil))
+                                  (,separator-value (out (:to ,stream) ,separator-value)))
+                            (out (:to ,stream) ,@subforms))
+                          ,hash-table))))))
 
 (define-out-op :n (stream n &rest subforms)
   `(:forms (loop repeat ,n do (out (:to ,stream) ,@subforms))))
