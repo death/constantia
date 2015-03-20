@@ -14,4 +14,5 @@
                  #:constantia/stream/forwarding
                  #:constantia/stream/case-translating
                  #:constantia/out
-                 #:constantia/parse-duration))
+                 #:constantia/parse-duration
+                 #:constantia/struct))
