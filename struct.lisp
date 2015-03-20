@@ -5,6 +5,9 @@
 (defpackage #:constantia/struct
   (:use #:cl)
   (:import-from #:alexandria #:once-only #:with-gensyms)
+  (:import-from #:ieee-floats
+                #:encode-float32 #:encode-float64
+                #:decode-float32 #:decode-float64)
   (:export
    #:pack
    #:pack-into
@@ -160,34 +163,28 @@
   (write-fixlen-string value (1- size)))
 
 (defun write-float-le (value)
-  (write-signed-le (sb-kernel:single-float-bits value) 4))
+  (write-signed-le (encode-float32 value) 4))
 
 (defun write-float-be (value)
-  (write-signed-be (sb-kernel:single-float-bits value) 4))
+  (write-signed-be (encode-float32 value) 4))
 
 (defun read-float-le ()
-  (sb-kernel:make-single-float (read-signed-le 4)))
+  (decode-float32 (read-unsigned-le 4)))
 
 (defun read-float-be ()
-  (sb-kernel:make-single-float (read-signed-be 4)))
+  (decode-float32 (read-unsigned-be 4)))
 
 (defun write-double-le (value)
-  (write-unsigned-le (sb-kernel:double-float-low-bits value) 4)
-  (write-signed-le (sb-kernel:double-float-high-bits value) 4))
+  (write-unsigned-le (encode-float64 value) 8))
 
 (defun write-double-be (value)
-  (write-signed-be (sb-kernel:double-float-high-bits value) 4)
-  (write-unsigned-be (sb-kernel:double-float-low-bits value) 4))
+  (write-unsigned-be (encode-float64 value) 8))
 
 (defun read-double-le ()
-  (let ((lo (read-unsigned-le 4))
-        (hi (read-signed-le 4)))
-    (sb-kernel:make-double-float hi lo)))
+  (decode-float64 (read-unsigned-le 8)))
 
 (defun read-double-be ()
-  (let ((hi (read-signed-be 4))
-        (lo (read-unsigned-be 4)))
-    (sb-kernel:make-double-float hi lo)))
+  (decode-float64 (read-unsigned-be 8)))
 
 (defvar *pack-args* '())
 
