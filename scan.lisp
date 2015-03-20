@@ -2,7 +2,27 @@
 ;;;; | Constantia                                         DEATH, 2009 |
 ;;;; +----------------------------------------------------------------+
 
-(in-package #:constantia)
+(defpackage #:constantia/scan
+  (:use #:cl #:constantia/misc #:constantia/event)
+  (:export
+   #:scan-object-available
+   #:scan-object
+   #:scan-source
+   #:scanner
+   #:object-scanned
+   #:continue-scanning
+   #:reset-scanner
+   #:fixlen-message-scanner
+   #:varlen-message-scanner
+   #:*delimited-message-max-length*
+   #:*delimited-message-delimiter*
+   #:message-too-big
+   #:message-too-big-scanner
+   #:delimited-message-scanner
+   #:store-max-length
+   #:ignore-message))
+
+(in-package #:constantia/scan)
 
 
 ;;;; Scanner protocol

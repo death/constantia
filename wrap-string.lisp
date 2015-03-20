@@ -2,7 +2,12 @@
 ;;;; | Constantia                                                     |
 ;;;; +----------------------------------------------------------------+
 
-(in-package #:constantia)
+(defpackage #:constantia/wrap-string
+  (:use #:cl)
+  (:export
+   #:wrap-string))
+
+(in-package #:constantia/wrap-string)
 
 ;; Need to check out Knuth's line-breaking algorithm sometime.
 

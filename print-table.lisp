@@ -2,7 +2,12 @@
 ;;;; | Constantia                                                     |
 ;;;; +----------------------------------------------------------------+
 
-(in-package #:constantia)
+(defpackage #:constantia/print-table
+  (:use #:cl #:constantia/wrap-string)
+  (:export
+   #:print-table))
+
+(in-package #:constantia/print-table)
 
 (defstruct column
   name

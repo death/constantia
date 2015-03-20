@@ -2,7 +2,16 @@
 ;;;; | Constantia                                         DEATH, 2010 |
 ;;;; +----------------------------------------------------------------+
 
-(in-package #:constantia)
+(defpackage #:constantia/stream/case-translating
+  (:use #:cl #:trivial-gray-streams #:constantia/stream/forwarding)
+  (:import-from #:alexandria #:with-gensyms #:once-only)
+  (:export
+   #:case-translating-stream
+   #:make-case-translating-stream
+   #:ensure-case-translating-stream
+   #:with-stream-case))
+
+(in-package #:constantia/stream/case-translating)
 
 
 ;;;; Case-translating stream

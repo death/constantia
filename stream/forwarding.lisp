@@ -2,7 +2,13 @@
 ;;;; | Constantia                                         DEATH, 2010 |
 ;;;; +----------------------------------------------------------------+
 
-(in-package #:constantia)
+(defpackage #:constantia/stream/forwarding
+  (:use #:cl #:trivial-gray-streams)
+  (:export
+   #:forwarding-character-output-stream
+   #:forwarding-character-output-stream-stream))
+
+(in-package #:constantia/stream/forwarding)
 
 
 ;;;; Forwarding character output stream

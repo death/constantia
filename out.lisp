@@ -2,7 +2,15 @@
 ;;;; | Constantia                                         DEATH, 2009 |
 ;;;; +----------------------------------------------------------------+
 
-(in-package #:constantia)
+(defpackage #:constantia/out
+  (:use #:cl #:constantia/stream/case-translating)
+  (:import-from #:alexandria #:appendf #:emptyp)
+  (:export
+   #:out
+   #:outs
+   #:define-out-user-op))
+
+(in-package #:constantia/out)
 
 
 ;;;; OUT - A convenient way to print stuff

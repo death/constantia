@@ -2,7 +2,57 @@
 ;;;; | Constantia                                         DEATH, 2009 |
 ;;;; +----------------------------------------------------------------+
 
-(in-package #:constantia)
+(defpackage #:constantia/misc
+  (:use #:cl)
+  (:import-from #:alexandria #:once-only #:with-gensyms #:if-let)
+  (:export
+   #:u8
+   #:u16
+   #:u32
+   #:defsubst
+   #:type-eq
+   #:square
+   #:abs-
+   #:singlep
+   #:in-range-p
+   #:as-keyword
+   #:slurp-file
+   #:map-lines-in-file
+   #:default
+   #:gethash/i
+   #:doseq
+   #:best-element
+   #:as-list
+   #:as-vector
+   #:make-octet-vector
+   #:concat-octet-vectors
+   #:plist-get
+   #:agetf
+   #:with-options
+   #:kahan
+   #:make-kahan
+   #:kahan-p
+   #:copy-kahan
+   #:kahan-sum
+   #:kahan-c
+   #:k+
+   #:float-sum
+   #:moment
+   #:moment-mean
+   #:moment-adev
+   #:moment-sdev
+   #:moment-svar
+   #:moment-skew
+   #:moment-kurt
+   #:make-queue
+   #:queue-push
+   #:queue-top
+   #:queue-pop
+   #:queue-empty-p
+   #:queue-size
+   #:queue-clear))
+
+(in-package #:constantia/misc)
 
 
 ;;;; Miscellaneous utilities

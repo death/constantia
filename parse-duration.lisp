@@ -2,7 +2,17 @@
 ;;;; | Constantia                                                     |
 ;;;; +----------------------------------------------------------------+
 
-(in-package #:constantia)
+(defpackage #:constantia/parse-duration
+  (:use #:cl)
+  (:import-from #:alexandria #:plist-hash-table #:emptyp)
+  (:export
+   #:invalid-duration
+   #:invalid-duration-string
+   #:invalid-time-unit
+   #:invalid-time-unit-string
+   #:parse-duration))
+
+(in-package #:constantia/parse-duration)
 
 ;; Stolen from (and almost as ugly as) the Go time.ParseDuration
 ;; implementation: http://golang.org/pkg/time/#ParseDuration

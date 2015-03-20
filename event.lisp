@@ -2,7 +2,21 @@
 ;;;; | Constantia                                         DEATH, 2009 |
 ;;;; +----------------------------------------------------------------+
 
-(in-package #:constantia)
+(defpackage #:constantia/event
+  (:use #:cl #:constantia/misc)
+  (:import-from #:alexandria #:ensure-list #:deletef)
+  (:export
+   #:event
+   #:speaker
+   #:define-event
+   #:define-events
+   #:add-listener
+   #:remove-listener
+   #:clear-listeners
+   #:fire
+   #:make-tracing-listener))
+
+(in-package #:constantia/event)
 
 
 ;;;; Event system
@@ -59,7 +73,7 @@ options to append to each event's options."
                for name-and-options = (append (ensure-list (first event-spec)) options)
                for slot-names = (rest event-spec)
                collect `(define-event ,name-and-options ,@slot-names)))))
-  
+
 (defmethod documentation ((x symbol) (doc-type (eql 'event)))
   (documentation (find-class x) 't))
 
