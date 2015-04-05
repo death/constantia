@@ -81,7 +81,7 @@
 
     ;; Special case: if all that is left is "0", this is zero.
     (when (equal s "0")
-      (return-from parse-duration 0))
+      (return-from parse-duration-1 0))
     (when (emptyp s)
       (error 'invalid-duration :string orig))
     (loop while (not (emptyp s))
