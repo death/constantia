@@ -3,7 +3,9 @@
 ;;;; +----------------------------------------------------------------+
 
 (defpackage #:constantia/out
-  (:use #:cl #:constantia/stream/case-translating)
+  (:use #:cl
+        #:constantia/stream/case-translating
+        #:constantia/stream/forwarding)
   (:import-from #:alexandria #:appendf #:emptyp)
   (:export
    #:out
