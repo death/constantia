@@ -24,7 +24,7 @@ For example:
           do (progress)
              (some-work)))
 
-Should evaluate (write-dot) once every 200 milliseconds if possible."
+Should write a dot once every 200 milliseconds if possible."
   (with-gensyms (progress-fn)
     `(let ((,progress-fn (funcall (conditional-caller ,when)
                                   (lambda () ,form)
