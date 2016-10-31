@@ -50,7 +50,9 @@
    #:queue-pop
    #:queue-empty-p
    #:queue-size
-   #:queue-clear))
+   #:queue-clear
+   #:call-every-n
+   #:call-every-ms))
 
 (in-package #:constantia/misc)
 
@@ -394,3 +396,26 @@ queue."
   "Clear contents of Q."
   (setf (queue-head q) nil)
   (setf (queue-tail q) nil))
+
+
+;;;; Functions useful for progress reporting
+
+;; Found in Xach's cloudfront-log-processor system.
+(defun call-every-n (function n)
+  "Call FUNCTION once every N calls."
+  (let ((counter 0))
+    (lambda ()
+      (when (<= n (incf counter))
+        (funcall function)
+        (setf counter 0)))))
+
+(defun call-every-ms (function interval)
+  "Call FUNCTION (at most) once every INTERVAL milliseconds."
+  (let ((last-called nil)
+        (interval-internal (ceiling (* (/ interval 1000) internal-time-units-per-second))))
+    (lambda ()
+      (let ((now (get-internal-real-time)))
+        (when (or (null last-called)
+                  (>= (- now last-called) interval-internal))
+          (setf last-called now)
+          (funcall function))))))
