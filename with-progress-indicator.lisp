@@ -44,6 +44,9 @@ DESIGNATOR.")
 (defmethod documentation (x (doc-type (eql 'conditional-caller)))
   (documentation (conditional-caller x) 'function))
 
+(defmethod (setf documentation) (new-value x (doc-type (eql 'conditional-caller)))
+  (setf (documentation (conditional-caller x) 'function) new-value))
+
 ;; :EVERY-MS conditional caller
 
 (defun call-every-ms (function interval)
