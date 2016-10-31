@@ -15,4 +15,5 @@
                  #:constantia/stream/case-translating
                  #:constantia/out
                  #:constantia/parse-duration
-                 #:constantia/struct))
+                 #:constantia/struct
+                 #:constantia/with-progress-indicator))
