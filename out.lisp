@@ -333,3 +333,16 @@
   `(:forms
     (macrolet ((out-stream-passer () ',stream))
       ,@forms)))
+
+;; This construct flushes the stream.
+
+(define-out-op :fo (stream &optional (wait nil))
+  (case wait
+    ((nil)
+     `(:forms (force-output ,stream)))
+    ((t)
+     `(:forms (finish-output ,stream)))
+    (t
+     `(:forms (if ,wait
+                  (finish-output ,stream)
+                  (force-output ,stream))))))
