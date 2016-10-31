@@ -23,7 +23,7 @@
 
 ;;;; A Python.struct-like implementation
 
-;;; See https://docs.python.org/3.1/library/struct.html
+;; See https://docs.python.org/3.1/library/struct.html
 
 (defvar *offset*)
 (defvar *reader*)

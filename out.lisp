@@ -17,7 +17,7 @@
 
 ;;;; OUT - A convenient way to print stuff
 
-;;; This macro was inspired by Drew McDermott's YTools OUT.
+;; This macro was inspired by Drew McDermott's YTools OUT.
 
 (defmacro out (&rest args &environment env)
 
@@ -166,10 +166,10 @@
 
 ;;;; Operators
 
-;;; Note that some of the arguments will be evaluated at runtime and
-;;; others are used in macroexpansion time.  For example, the colon/at
-;;; modifiers for FORMAT don't have something like using V for prefix
-;;; parameters, and no, I don't want recursive processing.
+;; Note that some of the arguments will be evaluated at runtime and
+;; others are used in macroexpansion time.  For example, the colon/at
+;; modifiers for FORMAT don't have something like using V for prefix
+;; parameters, and no, I don't want recursive processing.
 
 (define-out-op :% (stream &optional times)
   (format-op #\% (list :times times) '(:times)))
@@ -259,8 +259,8 @@
   `(:forms
     (out-seq ,stream ,sequence ,prefix ,suffix ,separator ,start ,end ,key)))
 
-;;; This allows using non-keywords to identify operators, which allows
-;;; the user to utilize the package system to prevent name clashes.
+;; This allows using non-keywords to identify operators, which allows
+;; the user to utilize the package system to prevent name clashes.
 
 (defvar *out-user-ops* (make-hash-table :test 'eq))
 
@@ -279,10 +279,10 @@
 (define-out-op :u (stream name &rest args)
   (apply (out-user-op name) stream args))
 
-;;; This construct is useful, but kinda reinvents COND.  McDermott's
-;;; OUT has something like it, too.  Note that if no consequent is
-;;; provided, nothing is output if the test for it passes (COND
-;;; returns the value(s) of the test expression).
+;; This construct is useful, but kinda reinvents COND.  McDermott's
+;; OUT has something like it, too.  Note that if no consequent is
+;; provided, nothing is output if the test for it passes (COND
+;; returns the value(s) of the test expression).
 
 (define-out-op :q (stream &rest clauses)
   `(:forms
@@ -290,12 +290,12 @@
       ,@(loop for (test . consequent) in clauses
               collect `(,test (out (:to ,stream) ,@consequent))))))
 
-;;; Note that we still don't support the behavior of ~@(, which
-;;; "capitalizes just the first word and forces the rest to lower
-;;; case."
+;; Note that we still don't support the behavior of ~@(, which
+;; "capitalizes just the first word and forces the rest to lower
+;; case."
 
-;;; Unlike FORMAT, we provide proper nesting semantics for case
-;;; translation (the "outer conversion" does not dominate).
+;; Unlike FORMAT, we provide proper nesting semantics for case
+;; translation (the "outer conversion" does not dominate).
 
 (macrolet ((define-case-op (name case)
              `(define-out-op ,name (stream &rest subforms)
