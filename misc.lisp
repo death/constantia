@@ -54,7 +54,8 @@
    #:call-every-n
    #:call-every-ms
    #:add-hook
-   #:run-hook))
+   #:run-hook
+   #:remove-hook))
 
 (in-package #:constantia/misc)
 
@@ -443,3 +444,9 @@ the end of the list; otherwise, adds to the beginning of the list."
     (dolist (function list)
       (apply function args)))
   (values))
+
+(defun remove-hook (hook function-designator)
+  "Remove the function designator from the hook, if there is one."
+  (let ((list (symbol-value hook)))
+    (set hook (remove function-designator list :count 1 :test #'equal))
+    (values)))
