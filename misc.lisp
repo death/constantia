@@ -52,7 +52,9 @@
    #:queue-size
    #:queue-clear
    #:call-every-n
-   #:call-every-ms))
+   #:call-every-ms
+   #:add-hook
+   #:run-hook))
 
 (in-package #:constantia/misc)
 
@@ -419,3 +421,25 @@ queue."
                   (>= (- now last-called) interval-internal))
           (setf last-called now)
           (funcall function))))))
+
+
+;;;; Simple hook management
+
+(defun add-hook (hook function-designator &key (append nil))
+  "Add the function designator to the hook.  If there is an EQUAL
+function designator already, does nothing.  If APPEND is true, adds to
+the end of the list; otherwise, adds to the beginning of the list."
+  (let ((list (symbol-value hook)))
+    (unless (member function-designator list :test #'equal)
+      (set hook
+           (if append
+               (append list (list function-designator))
+               (cons function-designator list)))))
+  (values))
+
+(defun run-hook (hook &rest args)
+  "Run a hook, passing arguments to each of the hook functions."
+  (let ((list (copy-list (symbol-value hook))))
+    (dolist (function list)
+      (apply function args)))
+  (values))
