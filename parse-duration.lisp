@@ -100,7 +100,7 @@
                (let ((pl (length s)))
                  (multiple-value-setq (x s) (leading-int s))
                  (setf g x)
-                 (let ((pre (/= pl (length s)))) ;whether we consume aynthing before a period
+                 (let ((pre (/= pl (length s)))) ;whether we consume anything before a period
 
                    ;; Consume (\.[0-9]*)?
                    (let ((post nil))
