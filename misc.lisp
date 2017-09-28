@@ -443,7 +443,8 @@ the end of the list; otherwise, adds to the beginning of the list."
   "Run a hook, passing arguments to each of the hook functions."
   (let ((list (copy-list (symbol-value hook))))
     (dolist (function list)
-      (apply function args)))
+      (with-simple-restart (continue "Continue running hook")
+        (apply function args))))
   (values))
 
 (defun remove-hook (hook function-designator)
