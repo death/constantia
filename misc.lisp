@@ -415,16 +415,17 @@ queue."
 
 ;; Found in Xach's cloudfront-log-processor system.
 (defun call-every-n (function n)
-  "Return a function to call FUNCTION once every N calls."
+  "Return a function to call FUNCTION and return its result once every
+N calls, and just return NIL otherwise."
   (let ((counter 0))
     (lambda ()
       (when (<= n (incf counter))
-        (funcall function)
-        (setf counter 0)))))
+        (setf counter 0)
+        (funcall function)))))
 
 (defun call-every-ms (function interval)
-  "Return a function to call FUNCTION (at most) once every INTERVAL
-milliseconds."
+  "Return a function to call FUNCTION and return its result once every
+INTERVAL milliseconds, and just return NIL otherwise."
   (let ((last-called nil)
         (interval-internal (ceiling (* (/ interval 1000) internal-time-units-per-second))))
     (lambda ()
