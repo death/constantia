@@ -7,8 +7,13 @@
   (:import-from #:alexandria #:once-only #:with-gensyms #:if-let)
   (:export
    #:u8
+   #:s8
    #:u16
+   #:s16
    #:u32
+   #:s32
+   #:u64
+   #:s64
    #:defsubst
    #:type-eq
    #:square
@@ -63,8 +68,13 @@
 ;;;; Miscellaneous utilities
 
 (deftype u8 () '(unsigned-byte 8))
+(deftype s8 () '(signed-byte 8))
 (deftype u16 () '(unsigned-byte 16))
+(deftype s16 () '(signed-byte 16))
 (deftype u32 () '(unsigned-byte 32))
+(deftype s32 () '(signed-byte 32))
+(deftype u64 () '(unsigned-byte 64))
+(deftype s64 () '(signed-byte 64))
 
 (defmacro defsubst (name lambda-list &body forms)
   "Define an inline function at top level."
