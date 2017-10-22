@@ -9,8 +9,7 @@
   (:import-from #:alexandria #:appendf #:emptyp)
   (:export
    #:out
-   #:outs
-   #:define-out-user-op))
+   #:outs))
 
 (in-package #:constantia/out)
 
@@ -258,26 +257,6 @@
 (define-out-op :s (stream sequence &key prefix suffix separator start end key)
   `(:forms
     (out-seq ,stream ,sequence ,prefix ,suffix ,separator ,start ,end ,key)))
-
-;; This allows using non-keywords to identify operators, which allows
-;; the user to utilize the package system to prevent name clashes.
-
-(defvar *out-user-ops* (make-hash-table :test 'eq))
-
-(defun out-user-op (name)
-  (or (gethash name *out-user-ops*)
-      (error "User operator by the name of ~S was not found." name)))
-
-(defmacro define-out-user-op (name (&rest args) &body body)
-  `(progn
-     (setf (gethash ',name *out-user-ops*)
-           (lambda ,args
-             (declare (ignorable ,(car args)))
-             ,@body))
-     ',name))
-
-(define-out-op :u (stream name &rest args)
-  (apply (out-user-op name) stream args))
 
 ;; This construct is useful, but kinda reinvents COND.  McDermott's
 ;; OUT has something like it, too.  Note that if no consequent is
