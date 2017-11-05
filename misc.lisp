@@ -60,6 +60,7 @@
    #:call-every-ms
    #:add-hook
    #:run-hook
+   #:continue-hook
    #:remove-hook))
 
 (in-package #:constantia/misc)
@@ -454,9 +455,16 @@ the end of the list; otherwise, adds to the beginning of the list."
   "Run a hook, passing arguments to each of the hook functions."
   (let ((list (copy-list (symbol-value hook))))
     (dolist (function list)
-      (with-simple-restart (continue "Continue running hook")
+      (with-simple-restart (continue-hook "Continue running hook")
         (apply function args))))
   (values))
+
+(defun continue-hook (&optional condition)
+  "Transfer control to a restart named CONTINUE-HOOK, or return NIL if
+none exists."
+  (let ((restart (find-restart 'continue-hook condition)))
+    (when restart
+      (invoke-restart restart))))
 
 (defun remove-hook (hook function-designator)
   "Remove the function designator from the hook, if there is one."
