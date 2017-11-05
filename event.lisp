@@ -4,7 +4,12 @@
 
 (defpackage #:constantia/event
   (:use #:cl #:constantia/misc)
-  (:import-from #:alexandria #:ensure-list #:deletef)
+  (:import-from #:alexandria
+                #:ensure-list
+                #:deletef)
+  (:import-from #:bordeaux-threads
+                #:make-recursive-lock
+                #:with-lock-held)
   (:export
    #:event
    #:speaker
@@ -82,7 +87,7 @@ options to append to each event's options."
 
 (defclass speaker ()
   ((listeners :initform '())
-   (listeners-lock :initform (bt:make-recursive-lock)))
+   (listeners-lock :initform (make-recursive-lock)))
   (:documentation
    "The base class for all speakers.
 
@@ -96,7 +101,7 @@ CLEAR-LISTENERS."))
 (defmacro with-listeners ((var speaker) &body forms)
   (let ((lock (gensym)))
     `(with-slots ((,var listeners) (,lock listeners-lock)) ,speaker
-       (bt:with-lock-held (,lock)
+       (with-lock-held (,lock)
          ,@forms))))
 
 (defun add-listener (listener &rest speakers)
