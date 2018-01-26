@@ -1,5 +1,5 @@
 ;;;; +----------------------------------------------------------------+
-;;;; | Constantia                                         DEATH, 2009 |
+;;;; | Constantia                                                     |
 ;;;; +----------------------------------------------------------------+
 
 ;;;; System definitions
@@ -8,6 +8,7 @@
 
 (asdf:defsystem #:constantia
   :description "Constantia general-purpose utilities"
+  :license "MIT"
   :class :package-inferred-system
   :defsystem-depends-on ("asdf-package-system")
   :depends-on ("constantia/all"))
