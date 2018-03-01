@@ -9,8 +9,7 @@
   (:import-from #:alexandria #:appendf #:emptyp)
   (:export
    #:out
-   #:outs
-   #:define-out-op))
+   #:outs))
 
 (in-package #:constantia/out)
 
@@ -64,18 +63,19 @@
              (simple-output (x)
                (add-to-format "~A" '() (list x))))
 
-      (loop for (arg . more-args) on args
-            do (cond ((typep arg '(cons (eql :to)))
-                      (add-to-forms `((out ,arg ,@more-args)))
-                      (return))
-                     ((and (typep arg '(cons symbol)) (out-op (car arg)))
-                      (destructuring-bind (type &rest data)
-                          (apply (out-op (car arg)) stream (cdr arg))
-                        (ecase type
-                          (:format (apply #'add-to-format data))
-                          (:forms (add-to-forms data)))))
-                     (t
-                      (simple-output arg))))
+      (loop for (arg . more-args) on args do
+            (typecase arg
+              ((cons (eql :to))
+               (add-to-forms `((out ,arg ,@more-args)))
+               (return))
+              ((cons keyword)
+               (destructuring-bind (type &rest data)
+                   (apply (out-op (car arg)) stream (cdr arg))
+                 (ecase type
+                   (:format (apply #'add-to-format data))
+                   (:forms (add-to-forms data)))))
+              (otherwise
+               (simple-output arg))))
 
       (add-to-forms
        (if to-string
@@ -100,7 +100,8 @@
 (defvar *out-ops* (make-hash-table :test 'eq))
 
 (defun out-op (name)
-  (gethash name *out-ops*))
+  (or (gethash name *out-ops*)
+      (error "Unable to find an out operator with the name ~S." name)))
 
 (defmacro define-out-op (name (&rest args) &body body)
   `(progn
