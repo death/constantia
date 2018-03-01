@@ -37,3 +37,6 @@
 
 (defmethod stream-clear-output ((stream forwarding-character-output-stream))
   (clear-output (forwarding-character-output-stream-stream stream)))
+
+(defmethod close ((stream forwarding-character-output-stream) &key abort)
+  (close (forwarding-character-output-stream-stream stream) :abort abort))
