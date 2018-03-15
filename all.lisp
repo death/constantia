@@ -13,6 +13,7 @@
                  #:constantia/scan
                  #:constantia/stream/forwarding
                  #:constantia/stream/case-translating
+                 #:constantia/stream/indenting
                  #:constantia/chained-hash-table
                  #:constantia/out
                  #:constantia/parse-duration
