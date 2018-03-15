@@ -55,11 +55,13 @@
   (multiple-value-bind (value exists)
       (gethash key (chash-table-contents hash-table))
     (cond (exists
-           (values value exists))
+           (values value exists t))
           ((chash-table-parent hash-table)
-           (cgethash key (chash-table-parent hash-table) default))
+           (multiple-value-bind (value exists)
+               (cgethash key (chash-table-parent hash-table) default)
+             (values value exists nil)))
           (t
-           (values default nil)))))
+           (values default nil nil)))))
 
 (defun (setf cgethash) (new-value key hash-table &optional default)
   (declare (ignore default))
@@ -72,11 +74,12 @@
   (when (nth-value 1 (gethash key (chash-table-contents hash-table)))
     (let ((result (remhash key (chash-table-contents hash-table))))
       (when (eq mode :shallow)
-        (return-from cremhash result))))
+        (return-from cremhash (values result t)))))
   (if (and (eq mode :deep)
            (chash-table-parent hash-table))
-      (cremhash key (chash-table-parent hash-table) :mode :deep)
-      nil))
+      (values (cremhash key (chash-table-parent hash-table) :mode :deep)
+              nil)
+      (values nil nil)))
 
 (defun cclrhash (hash-table &key (mode :shallow))
   (check-type mode (member :deep :shallow))
