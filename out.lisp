@@ -5,11 +5,19 @@
 (defpackage #:constantia/out
   (:use #:cl
         #:constantia/stream/case-translating
-        #:constantia/stream/forwarding)
-  (:import-from #:alexandria #:appendf #:emptyp)
+        #:constantia/stream/forwarding
+        #:constantia/chained-hash-table)
+  (:import-from #:constantia/misc
+                #:with-options)
+  (:import-from #:alexandria
+                #:appendf
+                #:emptyp
+                #:ensure-list)
   (:export
    #:out
-   #:outs))
+   #:outs
+   #:define-out-dispatch-table
+   #:define-out-op))
 
 (in-package #:constantia/out)
 
@@ -17,6 +25,16 @@
 ;;;; OUT - A convenient way to print stuff
 
 ;; This macro was inspired by Drew McDermott's YTools OUT.
+
+(eval-when (:compile-toplevel :load-toplevel :execute)
+  (defvar *out-dispatch-table-form*
+    '*out-dispatch-table*)
+  (defvar *out-dispatch-table*
+    (make-instance 'chained-hash-table :test 'eq)))
+
+(defmacro out-stream-passer () 'nil)
+
+(defmacro out-dispatch-table-passer () 'nil)
 
 (defmacro out (&rest args &environment env)
 
@@ -30,17 +48,32 @@
         (format-args '())
         (forms '())
         (to-string nil)
-        (case-translation nil))
+        (case-translation nil)
+        (*out-dispatch-table-form* *out-dispatch-table-form*)
+        (*out-dispatch-table* *out-dispatch-table*))
     (declare (special case-translation))
 
-    (cond ((and (consp args) (consp (car args)) (eq (caar args) :to))
-           (setf stream-form (cadar args))
-           (when (eq stream-form :string)
-             (setf stream-form `(make-string-output-stream))
-             (setf to-string t))
-           (pop args))
-          ((macroexpand '(out-stream-passer) env)
-           (setf stream-form (macroexpand '(out-stream-passer) env))))
+    (when (macroexpand '(out-stream-passer) env)
+      (setf stream-form (macroexpand '(out-stream-passer) env)))
+    (when (macroexpand '(out-dispatch-table-passer) env)
+      (setf *out-dispatch-table-form* (macroexpand '(out-dispatch-table-passer) env)))
+
+    (loop
+     (cond ((and (consp args) (consp (car args)) (eq (caar args) :to))
+            (setf stream-form (cadar args))
+            (when (eq stream-form :string)
+              (setf stream-form `(make-string-output-stream))
+              (setf to-string t))
+            (pop args))
+           ((and (consp args) (consp (car args)) (eq (caar args) :use))
+            (setf *out-dispatch-table-form* (cadar args))
+            (pop args))
+           (t
+            (return))))
+
+    (check-type *out-dispatch-table-form* symbol)
+    (setf *out-dispatch-table* (symbol-value *out-dispatch-table-form*))
+    (check-type *out-dispatch-table* chained-hash-table)
 
     (labels ((add-to-format (format-string &optional bindings args)
                (write-string format-string format-string-stream)
@@ -49,7 +82,10 @@
 
              (add-to-forms (body)
                (finish-format)
-               (appendf forms body))
+               (appendf forms
+                        (list `(macrolet ((out-stream-passer () ',stream)
+                                          (out-dispatch-table-passer () ',*out-dispatch-table-form*))
+                                 ,@body))))
 
              (finish-format ()
                (let ((format-string (get-output-stream-string format-string-stream)))
@@ -65,7 +101,7 @@
 
       (loop for (arg . more-args) on args do
             (typecase arg
-              ((cons (eql :to))
+              ((cons (member :to :use))
                (add-to-forms `((out ,arg ,@more-args)))
                (return))
               ((cons keyword)
@@ -97,19 +133,29 @@
 
 ;;;; Built-in operators infrastructure
 
-(defvar *out-ops* (make-hash-table :test 'eq))
+(defmacro define-out-dispatch-table (name &rest options)
+  (with-options (&optional parent documentation) options
+    (if (null parent)
+        (setf parent '*out-dispatch-table*)
+        (setf parent (first parent)))
+    `(defvar ,name
+       (make-instance 'chained-hash-table
+                      :parent ,parent)
+       ,@documentation)))
 
 (defun out-op (name)
-  (or (gethash name *out-ops*)
+  (or (cgethash name *out-dispatch-table*)
       (error "Unable to find an out operator with the name ~S." name)))
 
-(defmacro define-out-op (name (&rest args) &body body)
-  `(progn
-     (setf (gethash ',name *out-ops*)
-           (lambda ,args
-             (declare (ignorable ,(car args)))
-             ,@body))
-     ',name))
+(defmacro define-out-op (name-and-options (&rest args) &body body)
+  (destructuring-bind (name &key (table '*out-dispatch-table*))
+      (ensure-list name-and-options)
+    `(progn
+       (setf (cgethash ',name ,table)
+             (lambda ,args
+               (declare (ignorable ,(car args)))
+               ,@body))
+       ',name)))
 
 (defun format-data (control-char directive-plist ordering colon at)
   (let ((args '())
@@ -267,7 +313,7 @@
   `(:forms
     (cond
       ,@(loop for (test . consequent) in clauses
-              collect `(,test (out (:to ,stream) ,@consequent))))))
+              collect `(,test (out ,@consequent))))))
 
 ;; Note that we still don't support the behavior of ~@(, which
 ;; "capitalizes just the first word and forces the rest to lower
@@ -296,22 +342,18 @@
                  (maphash (lambda (,k ,v)
                             (declare (ignorable ,k ,v))
                             (cond (,first (setf ,first nil))
-                                  (,separator-value (out (:to ,stream) ,separator-value)))
-                            (out (:to ,stream) ,@subforms))
+                                  (,separator-value (out ,separator-value)))
+                            (out ,@subforms))
                           ,hash-table))))))
 
 (define-out-op :n (stream n &rest subforms)
-  `(:forms (loop repeat ,n do (out (:to ,stream) ,@subforms))))
+  `(:forms (loop repeat ,n do (out ,@subforms))))
 
 ;; This construct resembles the one in McDermott's OUT, except that we
 ;; use a local macro OUT to "return" to OUT mode.
 
-(defmacro out-stream-passer () 'nil)
-
 (define-out-op :e (stream &rest forms)
-  `(:forms
-    (macrolet ((out-stream-passer () ',stream))
-      ,@forms)))
+  `(:forms ,@forms))
 
 ;; This construct flushes the stream.
 
