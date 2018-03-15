@@ -6,6 +6,8 @@
   (:documentation
    "A hierarchical hash-table that can have a single parent.")
   (:use #:cl)
+  (:import-from #:alexandria
+                #:ensure-functionf)
   (:export
    #:chained-hash-table
    #:chash-table-p
@@ -91,7 +93,7 @@
 (defun cmaphash (function-designator hash-table &key (mode :shallow))
   (check-type mode (member :deep :shallow))
   (check-type hash-table chained-hash-table)
-  (alexandria:ensure-functionf function-designator)
+  (ensure-functionf function-designator)
   (maphash function-designator (chash-table-contents hash-table))
   (when (and (eq mode :deep)
              (chash-table-parent hash-table))
