@@ -72,12 +72,12 @@
   (check-type mode (member :deep :shallow))
   (check-type hash-table chained-hash-table)
   (let ((result (remhash key (chash-table-contents hash-table))))
-    (cond ((and result (eq mode :shallow))
-           (values result t))
-          ((and (eq mode :deep) (chash-table-parent hash-table))
-           (values (cremhash key (chash-table-parent hash-table) :mode :deep) nil))
-          (t
-           (values nil nil)))))
+    (values
+     (if (and (eq mode :deep) (chash-table-parent hash-table))
+         (or (cremhash key (chash-table-parent hash-table) :mode :deep)
+             result)
+         result)
+     (if result t nil))))
 
 (defun cclrhash (hash-table &key (mode :shallow))
   (check-type mode (member :deep :shallow))
