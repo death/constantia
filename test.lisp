@@ -7,10 +7,15 @@
   (:import-from #:parachute
                 #:test
                 #:plain
+                #:output
                 #:report-on
                 #:result
                 #:status
+                #:test-result
+                #:name
+                #:expression
                 #:parent-result
+                #:parent
                 #:define-test
                 #:is
                 #:true
@@ -30,10 +35,24 @@
              (not (eq :unknown (status result))))
     (call-next-method)))
 
+(defun fq-test-name (test)
+  (labels ((rec (test)
+             (if (parent test)
+                 (cons (name test)
+                       (rec (parent test)))
+                 (list (name test)))))
+    (nreverse (rec test))))
+
+(defmethod report-on ((result test-result) (report minimal))
+  (format (output report) "~{~A~^ :: ~}"
+          (fq-test-name (expression result))))
+
 (defun run-tests ()
   (test :constantia-test :report 'minimal))
 
-(define-test misc)
+(define-test constantia)
+
+(define-test (constantia misc))
 
 (define-test (misc square)
   (is = 4 (square 2))
