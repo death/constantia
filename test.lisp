@@ -7,6 +7,10 @@
   (:import-from #:parachute
                 #:test
                 #:plain
+                #:report-on
+                #:result
+                #:status
+                #:parent-result
                 #:define-test
                 #:is
                 #:true
@@ -17,6 +21,17 @@
    #:run-tests))
 
 (in-package #:constantia-test)
+
+(defclass minimal (plain)
+  ())
+
+(defmethod report-on :around ((result result) (report minimal))
+  (when (and (typep result 'parent-result)
+             (not (eq :unknown (status result))))
+    (call-next-method)))
+
+(defun run-tests ()
+  (test :constantia-test :report 'minimal))
 
 (define-test misc)
 
@@ -147,6 +162,3 @@
     (funcall f2)
     (is = 2 c1)
     (is = 1 c2)))
-
-(defun run-tests ()
-  (test :constantia-test :report 'plain))
