@@ -115,7 +115,7 @@ otherwise."
   "Return true if LIST is a list consisting of a single element;
 return false otherwise."
   (and (consp list)
-       (endp (rest list))))
+       (null (cdr list))))
 
 (defsubst random-in-range (min max &optional state)
   "Return a random integer in the range [MIN..MAX]."
