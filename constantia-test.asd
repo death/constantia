@@ -6,10 +6,10 @@
 
 ;; -*- Mode: LISP; Syntax: COMMON-LISP; Package: CL-USER; Base: 10 -*-
 
-(asdf:defsystem #:constantia
-  :description "Constantia general-purpose utilities"
+(asdf:defsystem #:constantia-test
+  :description "Tests for Constantia"
   :license "MIT"
-  :class :package-inferred-system
-  :defsystem-depends-on ("asdf-package-system")
-  :depends-on ("constantia/all")
-  :in-order-to ((asdf:test-op (asdf:test-op #:constantia-test))))
+  :depends-on (#:parachute)
+  :perform (asdf:test-op (op c) (uiop:symbol-call :constantia-test :run-tests))
+  :components
+  ((:file "test")))
