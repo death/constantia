@@ -42,7 +42,7 @@
                (dolist (width column-widths)
                  (loop repeat (+ width 2) doing (write-char #\- stream))
                  (write-char #\+ stream))
-               (write-char #\Newline))
+               (write-char #\Newline stream))
              (row (row kind)
                (let* ((cells (mapcar (lambda (c w column)
                                        (let ((s (if (eq kind :headings)
