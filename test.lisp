@@ -181,3 +181,45 @@
     (funcall f2)
     (is = 2 c1)
     (is = 1 c2)))
+
+(define-test (constantia wrap-string)
+  (let ((long "Hello world"))
+    (macrolet ((test (expectation width mode)
+                 `(is equal ,expectation (wrap-string long ,width ,mode))))
+      (test '("Hello") 5 :cut)
+      (test '("Hello world") 100 :cut)
+      (test '("He...") 5 :ellipsis)
+      (test '("Hello world") 100 :ellipsis)
+      ;; Semantics for :word and :character wrapping are fuzzy... may
+      ;; want to fix them some day.
+      (test '("Hell-" "o wo-" "rld") 5 :character)
+      (test '("Hello world") 100 :character)
+      (test '("Hello" "world") 6 :character)
+      (test '("Hello" "world") 5 :word))))
+
+(define-test (constantia print-table)
+  (flet ((table (column-specs rows &rest args)
+           (with-output-to-string (stream)
+             (apply #'print-table column-specs rows :stream stream args))))
+    (macrolet ((test (expectation form)
+                 `(is equal ,(substitute #\Newline #\^ expectation) ,form)))
+      ;; Just a few funny cases...
+      (test "+---+---+^| x | y |^+---+---+^| a | b |^+---+---+^"
+            (table '("x" "y") '(("a" "b"))))
+      (test "+---+---+^| x | y |^+---+---+^| a | b |^+---+---+^"
+            (table '("x" "y") '(("a" "b")) :condensed nil))
+      (test "+-----+---+^|  x  | y |^+-----+---+^| abc | b |^+-----+---+^"
+            (table '(("x" :width (:fixed 3)) ("y" :width (:max 3)))
+                   '(("abcd" "b"))))
+      (test "+-----+-----+^|  x  |  y  |^+-----+-----+^| ... | bc- |^|     | de  |^+-----+-----+^"
+            (table '(("x" :width (:fixed 3) :wrap :ellipsis)
+                     ("y" :width (:max 3) :wrap :character))
+                   '(("abcd" "bcde"))))
+      (test "+----+-----+^| xx |  y  |^+----+-----+^|  a |  b  |^+----+-----+^"
+            (table '(("xx" :width (:fixed :heading) :align :right)
+                     ("y" :width (:fixed 3) :align :center))
+                   '(("a" "b"))))
+      (test "+---+---+^| x | y |^+---+---+^| A | B |^| C | D |^+---+---+^"
+            (table '("x" "y") '((a b) (c d))))
+      (test "+---+---+^| x | y |^+---+---+^| A | B |^+---+---+^| C | D |^+---+---+^"
+            (table '("x" "y") '((a b) (c d)) :condensed nil)))))
