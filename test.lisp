@@ -265,3 +265,28 @@
     (ping p 'f)
     (is equal '(e c b) balls)
     (is eql 'e last-ball)))
+
+(define-test (constantia scan))
+
+(defun feed-scanner (message scanner)
+  (loop with end = (length message)
+        for start = 0 then (continue-scanning message start end scanner)
+        until (= start end)))
+
+(define-test (scan fixlen)
+  (let ((scanner (make-instance 'fixlen-message-scanner
+                                :length 2))
+        (part1 (make-octet-vector 3 :initial-contents '(1 2 3)))
+        (part2 (make-octet-vector 2 :initial-contents '(4 5)))
+        (part3 (make-octet-vector 2 :initial-contents '(6 7)))
+        (results '()))
+    (add-listener (lambda (event)
+                    (of-type 'scan-object-available event)
+                    (is eql scanner (scan-source event))
+                    (push (coerce (scan-object event) 'list) results))
+                  scanner)
+    (feed-scanner part1 scanner)
+    (feed-scanner part2 scanner)
+    (reset-scanner scanner)
+    (feed-scanner part3 scanner)
+    (is equal '((6 7) (3 4) (1 2)) results)))
