@@ -197,32 +197,33 @@
       (test '("Hello" "world") 6 :character)
       (test '("Hello" "world") 5 :word))))
 
+(defmacro are-lines (expectation form)
+  `(is equal ,(substitute #\Newline #\^ expectation) ,form))
+
 (define-test (constantia print-table)
   (flet ((table (column-specs rows &rest args)
            (with-output-to-string (stream)
              (apply #'print-table column-specs rows :stream stream args))))
-    (macrolet ((test (expectation form)
-                 `(is equal ,(substitute #\Newline #\^ expectation) ,form)))
-      ;; Just a few funny cases...
-      (test "+---+---+^| x | y |^+---+---+^| a | b |^+---+---+^"
-            (table '("x" "y") '(("a" "b"))))
-      (test "+---+---+^| x | y |^+---+---+^| a | b |^+---+---+^"
-            (table '("x" "y") '(("a" "b")) :condensed nil))
-      (test "+-----+---+^|  x  | y |^+-----+---+^| abc | b |^+-----+---+^"
-            (table '(("x" :width (:fixed 3)) ("y" :width (:max 3)))
-                   '(("abcd" "b"))))
-      (test "+-----+-----+^|  x  |  y  |^+-----+-----+^| ... | bc- |^|     | de  |^+-----+-----+^"
-            (table '(("x" :width (:fixed 3) :wrap :ellipsis)
-                     ("y" :width (:max 3) :wrap :character))
-                   '(("abcd" "bcde"))))
-      (test "+----+-----+^| xx |  y  |^+----+-----+^|  a |  b  |^+----+-----+^"
-            (table '(("xx" :width (:fixed :heading) :align :right)
-                     ("y" :width (:fixed 3) :align :center))
-                   '(("a" "b"))))
-      (test "+---+---+^| x | y |^+---+---+^| A | B |^| C | D |^+---+---+^"
-            (table '("x" "y") '((a b) (c d))))
-      (test "+---+---+^| x | y |^+---+---+^| A | B |^+---+---+^| C | D |^+---+---+^"
-            (table '("x" "y") '((a b) (c d)) :condensed nil)))))
+    ;; Just a few funny cases...
+    (are-lines "+---+---+^| x | y |^+---+---+^| a | b |^+---+---+^"
+               (table '("x" "y") '(("a" "b"))))
+    (are-lines "+---+---+^| x | y |^+---+---+^| a | b |^+---+---+^"
+               (table '("x" "y") '(("a" "b")) :condensed nil))
+    (are-lines "+-----+---+^|  x  | y |^+-----+---+^| abc | b |^+-----+---+^"
+               (table '(("x" :width (:fixed 3)) ("y" :width (:max 3)))
+                      '(("abcd" "b"))))
+    (are-lines "+-----+-----+^|  x  |  y  |^+-----+-----+^| ... | bc- |^|     | de  |^+-----+-----+^"
+               (table '(("x" :width (:fixed 3) :wrap :ellipsis)
+                        ("y" :width (:max 3) :wrap :character))
+                      '(("abcd" "bcde"))))
+    (are-lines "+----+-----+^| xx |  y  |^+----+-----+^|  a |  b  |^+----+-----+^"
+               (table '(("xx" :width (:fixed :heading) :align :right)
+                        ("y" :width (:fixed 3) :align :center))
+                      '(("a" "b"))))
+    (are-lines "+---+---+^| x | y |^+---+---+^| A | B |^| C | D |^+---+---+^"
+               (table '("x" "y") '((a b) (c d))))
+    (are-lines "+---+---+^| x | y |^+---+---+^| A | B |^+---+---+^| C | D |^+---+---+^"
+               (table '("x" "y") '((a b) (c d)) :condensed nil))))
 
 (define-event ev-pong ball)
 
@@ -340,3 +341,15 @@
                                       (store-max-length 5 condition))))
       (feed-scanner part5 scanner))
     (is equal '((10 11 12 13 14) adjusting too-big () (3 4 5 6) (1 2)) results)))
+
+(define-test (constantia stream))
+
+(define-test (stream case-translating)
+  (let* ((string-stream (make-string-output-stream))
+         (stream (ensure-case-translating-stream string-stream)))
+    (write-line "fOo bAr" stream)
+    (dolist (case '(:preserve :upcase :downcase :capitalize))
+      (with-stream-case (stream case)
+        (write-line "fOo bAr" stream)))
+    (are-lines "fOo bAr^fOo bAr^FOO BAR^foo bar^Foo Bar^"
+               (get-output-stream-string string-stream))))
