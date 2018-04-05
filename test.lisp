@@ -353,3 +353,16 @@
         (write-line "fOo bAr" stream)))
     (are-lines "fOo bAr^fOo bAr^FOO BAR^foo bar^Foo Bar^"
                (get-output-stream-string string-stream))))
+
+(define-test (stream indenting)
+  (let* ((string-stream (make-string-output-stream))
+         (stream (ensure-indenting-stream string-stream)))
+    (write-line "{" stream)
+    (with-indent (stream)
+      (write-line "{" stream)
+      (with-indent (stream)
+        (write-line "ok" stream))
+      (write-line "}" stream))
+    (write-line "}" stream)
+    (are-lines "{^  {^    ok^  }^}^"
+               (get-output-stream-string string-stream))))
