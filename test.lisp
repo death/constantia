@@ -381,3 +381,115 @@
     (is eql (cgethash :foo ht2) :bar)
     (cremhash :foo ht2 :mode :deep)
     (is eql (cgethash :foo ht2) nil)))
+
+(define-test (constantia out))
+
+(define-test (out default-destination)
+  (let ((*standard-output* (make-string-output-stream)))
+    (out 1234)
+    (is equal "1234" (get-output-stream-string *standard-output*))))
+
+(define-test (out specified-destination)
+  (let ((stream (make-string-output-stream)))
+    (out (:to stream) 1234)
+    (is equal "1234" (get-output-stream-string stream))))
+
+(define-test (out simple)
+  (is equal "1234" (outs 1234))
+  (is equal "hello" (outs "hello"))
+  (is equal "HELLO" (outs 'hello))
+  (is equal "HELLO WORLD 2.0" (outs 'hello #\Space :world " " 2.0)))
+
+(define-test (out op-%)
+  (are-lines "A^B^^C" (outs 'a (:%) 'b (:% 2) 'c)))
+
+(define-test (out op-f)
+  (is equal "1.00" (outs (:f 1 :digits-after-point 2)))
+  (is equal "*+10.E+2"
+      (outs (:f 1000
+                :mode :exponential
+                :width 8
+                :pad-char #\*
+                :plus-sign t
+                :scale-factor 2
+                :exponent-char #\E))))
+
+(define-test (out op-d)
+  (is equal "*+1_00_00"
+      (outs (:d #x10000
+                :width 9
+                :pad-char #\*
+                :comma-char #\_
+                :comma-interval 2
+                :commas t
+                :sign t
+                :base 16))))
+
+(define-test (out op-r)
+  (is equal "two thousand eighteen" (outs (:r 2018)))
+  (is equal "second" (outs (:r 2 :ordinal)))
+  (is equal "MMXVIII" (outs (:r 2018 :roman)))
+  (is equal "MMXVIIII" (outs (:r 2019 :old-roman))))
+
+(define-test (out op-&)
+  (are-lines "^a^^b" (outs (:& 2) "a" (:& 2) "b")))
+
+(define-test (out op-c)
+  (is equal "Space #\\X"
+      (outs (:c #\Space :pretty)
+            (:c #\Space)
+            (:c #\X :readable))))
+
+(define-test (out op-a)
+  (is equal "XXX\"Hello\""
+      (outs (:a "Hello"
+                :escape t
+                :width 10
+                :align :right
+                :pad-char #\X))))
+
+(define-test (out op-s)
+  (is equal "(1),(2),(3)"
+      (outs (:s '(X -1 -2 -3 Y)
+                :prefix "("
+                :suffix #\)
+                :separator ","
+                :start 1
+                :end 4
+                :key #'-))))
+
+(define-test (out op-q)
+  (let ((x (+ (read-from-string "40") 1)))
+    (is equal "ODD and positive"
+        (outs (:q ((oddp x) 'odd)
+                  ((evenp x) "even"))
+              " and "
+              (:q ((zerop x) "zero")
+                  ((plusp x) "positive")
+                  ((minusp x) "negative"))))))
+
+(define-test (out op-case)
+  (is equal "one TWO Three fOUR"
+      (outs (:dc 'one) " "
+            (:uc "two") " "
+            (:cc (:r 3)) " "
+            (:pc "fOUR"))))
+
+(defmethod equal-one-of ((list list) value)
+  (some (lambda (item) (equal item value)) list))
+
+(defmethod equal-one-of (value (list list))
+  (equal-one-of list value))
+
+(define-test (out op-h)
+  (let ((ht (make-hash-table)))
+    (setf (gethash :yes ht) "Ja")
+    (setf (gethash :no ht) "Nein")
+    (is equal-one-of '("Yes->Ja,No->Nein" "No->Nein,Yes->Ja")
+        (outs (:h ht (k v :separator ",") (:cc k) "->" v)))))
+
+(define-test (out op-n)
+  (is equal "AAAA" (outs (:n 4 (:uc "a")))))
+
+(define-test (out op-e)
+  (is equal "123" (outs (:e (out 123)))))
