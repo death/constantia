@@ -33,7 +33,8 @@ standard output as a list of strings, each representing a line."
   "Return the length of the longest line in LINES."
   (reduce #'max lines :key #'length :initial-value 0))
 
-(defun side-by-side (printers &key (nonmatching-indicator nil)
+(defun side-by-side (printers &key (test #'equal)
+                                   (nonmatching-indicator nil)
                                    (side-separator " | ")
                                    (number-lines t)
                                    (line-number-separator ": ")
@@ -66,7 +67,7 @@ side-by-side."
                              side-suffix))
                (out sides-suffix
                     (:q ((and nonmatching-indicator
-                              (notevery (lambda (line) (equal line (first lines))) (rest lines)))
+                              (notevery (lambda (line) (funcall test line (first lines))) (rest lines)))
                          nonmatching-indicator))
                     (:%))))))
 
