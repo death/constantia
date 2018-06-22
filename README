@@ -1,6 +1,6 @@
 Constantia is a general-purpose utilities library for Common Lisp.
 
-Its purpose is to serve as a single place for all the sufficiently
+Its purpose is to serve as a single place for some of the sufficiently
 general, useful, and small utilities I use in my everyday projects.
 
 It is not expressly intended for public consumption, but you are
