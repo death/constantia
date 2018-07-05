@@ -493,3 +493,18 @@
 
 (define-test (out op-e)
   (is equal "123" (outs (:e (out 123)))))
+
+(define-test (constantia parse-duration)
+  (is = 1 (parse-duration "1ns"))
+  (is = 1000 (parse-duration "1us"))
+  (is = 1000000 (parse-duration "1ms"))
+  (is = 1000000000 (parse-duration "1s"))
+  (is = 60000000000 (parse-duration "1m"))
+  (is = 3600000000000 (parse-duration "1h"))
+  (is = 86400000000000 (parse-duration "1d"))
+  (is eql 5/2 (parse-duration "2s500ms" "1s"))
+  (is eql 5/2 (parse-duration "2.5s" "1s"))
+  (is = 2 (parse-duration "48h" "24h"))
+  (is eql 1/1000 (parse-duration "1ns" "1us"))
+  (is = 0 (parse-duration "0m"))
+  (is = -3 (parse-duration "-3s" "1000ms")))
