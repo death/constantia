@@ -221,7 +221,7 @@ and receivers shouldn't attempt to keep or modify them."))
 
 (defmethod reset-scanner ((scanner delimited-message-scanner))
   (setf (scan-ignoring-message-p scanner) nil)
-  (setf (scan-message scanner) (make-in-memory-output-stream))
+  (get-output-stream-sequence (scan-message scanner))
   (setf (scan-message-length scanner) 0))
 
 (defun prompt-max-length ()
