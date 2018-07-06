@@ -4,6 +4,9 @@
 
 (defpackage #:constantia/scan
   (:use #:cl #:constantia/misc #:constantia/event)
+  (:import-from #:flexi-streams
+                #:make-in-memory-output-stream
+                #:get-output-stream-sequence)
   (:export
    #:scan-object-available
    #:scan-object
@@ -175,7 +178,7 @@ exceeds the scanner's maximum message length."))
    (delimiter :initarg :delimiter :reader scan-message-delimiter)
    (ignoring-message :initform nil :accessor scan-ignoring-message-p)
    (message-stream
-    :initform (flexi-streams:make-in-memory-output-stream)
+    :initform (make-in-memory-output-stream)
     :accessor scan-message)
    (message-length :initform 0 :accessor scan-message-length))
   (:default-initargs :max-length *delimited-message-max-length*
@@ -209,7 +212,7 @@ and receivers shouldn't attempt to keep or modify them."))
                (reset-scanner scanner))
               ((= octet delimiter)
                (object-scanned
-                (flexi-streams:get-output-stream-sequence stream)
+                (get-output-stream-sequence stream)
                 scanner)
                (return-from continue-scanning (1+ offset)))
               ((not ignoring)
@@ -218,7 +221,7 @@ and receivers shouldn't attempt to keep or modify them."))
 
 (defmethod reset-scanner ((scanner delimited-message-scanner))
   (setf (scan-ignoring-message-p scanner) nil)
-  (setf (scan-message scanner) (flexi-streams:make-in-memory-output-stream))
+  (setf (scan-message scanner) (make-in-memory-output-stream))
   (setf (scan-message-length scanner) 0))
 
 (defun prompt-max-length ()
