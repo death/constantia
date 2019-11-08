@@ -97,5 +97,5 @@
   (maphash function-designator (chash-table-contents hash-table))
   (when (and (eq mode :deep)
              (chash-table-parent hash-table))
-    (cmaphash function-designator (chash-table-parent hash-table)))
+    (cmaphash function-designator (chash-table-parent hash-table) :mode :deep))
   nil)
