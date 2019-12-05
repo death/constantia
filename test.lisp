@@ -516,3 +516,22 @@
   (is eql 1/1000 (parse-duration "1ns" "1us"))
   (is = 0 (parse-duration "0m"))
   (is = -3 (parse-duration "-3s" "1000ms")))
+
+(define-test (constantia binary-search)
+  (macrolet ((slu (expected-s expected-l expected-u item vector &rest args)
+               `(progn
+                  (is-values (binary-search ,item ,vector ,@args)
+                    ,@(loop for v in expected-s
+                            collect (if (consp v)
+                                        `(equal-one-of ',v)
+                                        `(equal ,v))))
+                  (is = ,expected-l (lower-bound ,item ,vector ,@args))
+                  (is = ,expected-u (upper-bound ,item ,vector ,@args)))))
+    (slu (nil nil) 0 0 5 #())
+    (slu (nil nil) 1 1 2 #(1 3 5))
+    (slu (5 (2 3)) 2 4 5 #(2 4 5 5 6 8))
+    (slu (-7 3) 3 4 7 #(-1 -1 -2 -7 -9 -51 -53) :key #'-)
+    (slu (nil nil) 4 4 7 #(1 1 2 7 9 51 53) :start 4)
+    (slu (7 3) 3 4 7 #(1 1 2 7 9 51 53) :end 4)
+    (slu (nil nil) 6 6 10 #(2 4 5 5 6 8))
+    (slu ("banana" 1) 1 2 "banana" #("apple" "banana" "cherry") :less #'string<)))

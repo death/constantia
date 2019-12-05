@@ -18,4 +18,5 @@
                  #:constantia/out
                  #:constantia/parse-duration
                  #:constantia/struct
-                 #:constantia/side-by-side))
+                 #:constantia/side-by-side
+                 #:constantia/binary-search))
