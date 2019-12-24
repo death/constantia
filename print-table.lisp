@@ -68,10 +68,11 @@
                      do (write-char #\Space stream)
                      do (write-char #\| stream))
                (write-char #\Newline stream)))
-      (sep)
-      (row (mapcar #'column-name columns) :headings)
-      (loop for (row . more) on rows
-            do (row row (if more :normal :last)))
+      (when columns
+        (sep)
+        (row (mapcar #'column-name columns) :headings)
+        (loop for (row . more) on rows
+              do (row row (if more :normal :last))))
       (values))))
 
 (defun column-widths (columns rows)
