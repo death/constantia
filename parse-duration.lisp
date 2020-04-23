@@ -55,14 +55,12 @@
            (not (digit-char-p (char s i))))
        (values x (subseq s i)))))
 
-(define-compiler-macro parse-duration-1 (&whole form s)
-  (if (stringp s)
-      (parse-duration-1 s)
-      form))
-
 (define-compiler-macro parse-duration (s &optional (g "1ns"))
-  `(/ (parse-duration-1 ,s)
-      (parse-duration-1 ,g)))
+  (flet ((pd (x)
+           (if (stringp x)
+               (parse-duration-1 x)
+               `(parse-duration-1 ,x))))
+    `(/ ,(pd s) ,(pd g))))
 
 (defun parse-duration (s &optional (g "1ns"))
   "Parse a duration string into a number of time units (G)."
@@ -71,6 +69,7 @@
 
 (defun parse-duration-1 (s)
   "Parse a duration string into a number of nanoseconds."
+  (check-type s string)
   (let ((orig s)
         (f 0)
         (neg nil))
