@@ -29,9 +29,9 @@ standard output as a string."
 standard output as a list of strings, each representing a line."
   `(split-lines (output-as-string ,printer-form)))
 
-(defun max-line-length (lines)
-  "Return the length of the longest line in LINES."
-  (reduce #'max lines :key #'length :initial-value 0))
+(defun max-length (sequences)
+  "Return the length of the longest sequence in SEQUENCES."
+  (reduce #'max sequences :key #'length :initial-value 0))
 
 (defun side-by-side (printers &key (test #'equal)
                                    (nonmatching-indicator nil)
@@ -47,11 +47,10 @@ standard output as a list of strings, each representing a line."
 side-by-side."
   (assert (not (null printers)) (printers) "Need at least one side.")
   (let* ((sides (mapcar (lambda (printer) (output-as-lines (funcall printer))) printers))
-         (side-length (reduce #'max sides :key #'max-line-length :initial-value 0))
-         (number-of-lines (and number-lines (reduce #'max sides :key #'length)))
-         (line-number-width (and number-lines (ceiling (log (1+ number-of-lines) 10)))))
-    (loop while (some #'identity sides)
-          for line-number from 1
+         (side-length (reduce #'max sides :key #'max-length :initial-value 0))
+         (line-number-width (and number-lines (ceiling (log (1+ (max-length sides)) 10)))))
+    (loop for line-number from 1
+          while (some #'identity sides)
           do (let ((lines (mapcar (lambda (side) (or (first side) "")) sides)))
                (map-into sides #'rest sides)
                (out (:q (number-lines
