@@ -14,24 +14,27 @@
   alignment
   key
   width
-  wrap)
+  wrap
+  format)
 
 ;; NAME is a string.
 ;; ALIGNMENT is one of :LEFT (default), :RIGHT, :CENTER.
 ;; KEY is a function designator (identity by default).
 ;; WIDTH is one of :AUTO (default), (:FIXED <n>/:HEADING), (:MAX <n>)
 ;; WRAP is one of :CUT (default), :ELLIPSIS, :WORD, :CHARACTER
+;; FORMAT is null or a format control string.
 
 (defun parse-column-spec (spec)
   (etypecase spec
     (string (parse-column-spec (list spec)))
-    (cons (destructuring-bind (name &key align key width wrap) spec
+    (cons (destructuring-bind (name &key align key width wrap format) spec
             (make-column
              :name name
              :alignment (or align :left)
              :key (or key #'identity)
              :width (or width :auto)
-             :wrap (or wrap :cut))))
+             :wrap (or wrap :cut)
+             :format format)))
     (column spec)))
 
 (defun print-table (column-specs rows &key (stream *standard-output*) (condensed t))
@@ -127,8 +130,11 @@
        (values (+ a b) a)))))
 
 (defun format-column-object (object column)
-  (frugal-princ-to-string
-   (funcall (column-key column) object)))
+  (let ((value (funcall (column-key column) object))
+        (format (column-format column)))
+    (if (null format)
+        (frugal-princ-to-string value)
+        (format nil format value))))
 
 (defun frugal-princ-to-string (object)
   (if (stringp object)
