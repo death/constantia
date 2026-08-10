@@ -413,10 +413,10 @@
 
 (define-test (out op-f)
   (is equal "1.00" (outs (:f 1 :digits-after-point 2)))
-  (is equal "*+10.E+2"
+  (is equal "*+10.0E+2"
       (outs (:f 1000
                 :mode :exponential
-                :width 8
+                :width 9
                 :pad-char #\*
                 :plus-sign t
                 :scale-factor 2
